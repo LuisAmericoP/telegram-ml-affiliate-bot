@@ -10,6 +10,10 @@ bot = Bot(token=TOKEN)
 
 url = "https://api.mercadolibre.com/sites/MLB/search?q=notebook&limit=1"
 response = requests.get(url)
+
+print("Status code:", response.status_code)
+print("Resposta:", response.text)
+
 data = response.json()
 
 if "results" in data and len(data["results"]) > 0:
