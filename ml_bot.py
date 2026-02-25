@@ -2,9 +2,9 @@ import requests
 import os
 from telegram import Bot
 
-TOKEN = os.getenv(8795534220:AAEPWrJw7gVtqGOVIGoy9kob7f6K2sGLjLg)
-CANAL_ID = os.getenv(https://t.me/achadosmercadolivrezk)
-AFILIADO = os.getenv(11751955)
+TOKEN = os.getenv("TOKEN")
+CANAL_ID = os.getenv("CANAL_ID")
+AFILIADO = os.getenv("AFILIADO")
 
 bot = Bot(token=TOKEN)
 
