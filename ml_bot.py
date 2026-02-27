@@ -8,9 +8,10 @@ CANAL_ID = os.getenv("CANAL_ID")
 AFILIADO = os.getenv("AFILIADO")
 ML_APP_ID = os.getenv("ML_APP_ID")
 ML_CLIENT_SECRET = os.getenv("ML_CLIENT_SECRET")
+REDIRECT_URI = os.getenv("URL_DO_PAINEL")
+TG_CODE = os.getenv("CODIGO_TG")
 
 bot = Bot(token=TOKEN)
-
 
 # ====== GERAR TOKEN MERCADO LIVRE ======
 def gerar_token():
@@ -38,7 +39,6 @@ def gerar_token():
         return None
 
     return response.json().get("access_token")
-
 
 # ====== BUSCAR PRODUTO ======
 def buscar_produto(query="notebook"):
@@ -71,7 +71,6 @@ def buscar_produto(query="notebook"):
 
     return data["results"][0]
 
-
 # ====== ENVIAR PARA TELEGRAM ======
 def enviar_produto():
     produto = buscar_produto("notebook")
@@ -98,7 +97,6 @@ def enviar_produto():
     bot.send_message(chat_id=CANAL_ID, text=mensagem)
 
     print("Produto enviado com sucesso!")
-
 
 # ====== EXECUTAR ======
 if __name__ == "__main__":
