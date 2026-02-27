@@ -17,9 +17,11 @@ def gerar_token():
     url = "https://api.mercadolibre.com/oauth/token"
 
     payload = {
-        "grant_type": "client_credentials",
+       "grant_type": "authorization_code",
         "client_id": ML_APP_ID,
-        "client_secret": ML_CLIENT_SECRET
+        "client_secret": ML_CLIENT_SECRET,
+        "code": CODIGO_TG, 
+        "redirect_uri": URL_DO_PAINEL 
     }
 
     headers = {
