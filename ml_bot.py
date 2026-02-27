@@ -1,42 +1,103 @@
-import requests
 import os
+import requests
 from telegram import Bot
 
+# ====== VARIÁVEIS DE AMBIENTE ======
 TOKEN = os.getenv("TOKEN")
 CANAL_ID = os.getenv("CANAL_ID")
 AFILIADO = os.getenv("AFILIADO")
+ML_APP_ID = os.getenv("ML_APP_ID")
+ML_CLIENT_SECRET = os.getenv("ML_CLIENT_SECRET")
 
 bot = Bot(token=TOKEN)
 
-url = "https://api.mercadolibre.com/sites/MLB/search?q=notebook&limit=1"
-response = requests.get(url)
 
-print("Status code:", response.status_code)
-print("Resposta:", response.text)
+# ====== GERAR TOKEN MERCADO LIVRE ======
+def gerar_token():
+    url = "https://api.mercadolibre.com/oauth/token"
 
-data = response.json()
+    payload = {
+        "grant_type": "client_credentials",
+        "client_id": ML_APP_ID,
+        "client_secret": ML_CLIENT_SECRET
+    }
 
-if "results" in data and len(data["results"]) > 0:
-    produto = data["results"][0]
-else:
-    print("Erro ao buscar produto")
-    exit()
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json"
+    }
 
-titulo = produto["title"]
-preco = produto["price"]
-link = produto["permalink"]
+    response = requests.post(url, json=payload, headers=headers)
 
-link_afiliado = f"{link}?matt_tool={AFILIADO}"
+    print("Token status:", response.status_code)
+    print("Token response:", response.text)
 
-mensagem = f"""
+    if response.status_code != 200:
+        return None
+
+    return response.json().get("access_token")
+
+
+# ====== BUSCAR PRODUTO ======
+def buscar_produto(query="notebook"):
+    access_token = gerar_token()
+
+    if not access_token:
+        print("Erro ao gerar token")
+        return None
+
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+
+    url = f"https://api.mercadolibre.com/sites/MLB/search?q={query}"
+
+    response = requests.get(url, headers=headers)
+
+    print("Busca status:", response.status_code)
+    print("Busca resposta:", response.text)
+
+    if response.status_code != 200:
+        print("Erro ao buscar produto")
+        return None
+
+    data = response.json()
+
+    if "results" not in data or len(data["results"]) == 0:
+        print("Nenhum produto encontrado")
+        return None
+
+    return data["results"][0]
+
+
+# ====== ENVIAR PARA TELEGRAM ======
+def enviar_produto():
+    produto = buscar_produto("notebook")
+
+    if not produto:
+        return
+
+    titulo = produto["title"]
+    preco = produto["price"]
+    link = produto["permalink"]
+
+    # Gera link afiliado
+    link_afiliado = f"{link}?matt_tool={AFILIADO}"
+
+    mensagem = f"""
 🔥 {titulo}
 
-💰 R$ {preco}
+💰 Preço: R$ {preco}
 
-🛒 Compre aqui:
+🛒 Comprar agora:
 {link_afiliado}
 """
 
-bot.send_message(chat_id=CANAL_ID, text=mensagem)
+    bot.send_message(chat_id=CANAL_ID, text=mensagem)
 
-print("Postado com sucesso!")
+    print("Produto enviado com sucesso!")
+
+
+# ====== EXECUTAR ======
+if __name__ == "__main__":
+    enviar_produto()
