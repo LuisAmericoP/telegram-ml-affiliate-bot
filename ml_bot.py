@@ -6,46 +6,48 @@ from telegram import Bot
 TOKEN = os.getenv("TOKEN")
 CANAL_ID = os.getenv("CANAL_ID")
 AFILIADO = os.getenv("AFILIADO")
+
 ML_APP_ID = os.getenv("ML_APP_ID")
 ML_CLIENT_SECRET = os.getenv("ML_CLIENT_SECRET")
-URL_DO_PAINEL = os.getenv("URL_DO_PAINEL")
-CODIGO_TG = os.getenv("CODIGO_TG")
+ML_REFRESH_TOKEN = os.getenv("ML_REFRESH_TOKEN")
 
 bot = Bot(token=TOKEN)
 
-# ====== GERAR TOKEN MERCADO LIVRE ======
-def gerar_token():
+
+# ====== ATUALIZAR ACCESS TOKEN ======
+def atualizar_token():
     url = "https://api.mercadolibre.com/oauth/token"
 
     payload = {
-       "grant_type": "authorization_code",
+        "grant_type": "refresh_token",
         "client_id": ML_APP_ID,
         "client_secret": ML_CLIENT_SECRET,
-        "code": CODIGO_TG, 
-        "redirect_uri": URL_DO_PAINEL 
+        "refresh_token": ML_REFRESH_TOKEN
     }
 
     headers = {
         "accept": "application/json",
-        "content-type": "application/json"
+        "content-type": "application/x-www-form-urlencoded"
     }
 
-    response = requests.post(url, json=payload, headers=headers)
+    response = requests.post(url, data=payload, headers=headers)
 
-    print("Token status:", response.status_code)
-    print("Token response:", response.text)
+    print("Refresh status:", response.status_code)
+    print("Refresh response:", response.text)
 
     if response.status_code != 200:
         return None
 
-    return response.json().get("access_token")
+    data = response.json()
+    return data.get("access_token")
+
 
 # ====== BUSCAR PRODUTO ======
 def buscar_produto(query="notebook"):
-    access_token = gerar_token()
+    access_token = atualizar_token()
 
     if not access_token:
-        print("Erro ao gerar token")
+        print("Erro ao atualizar token")
         return None
 
     headers = {
@@ -57,10 +59,9 @@ def buscar_produto(query="notebook"):
     response = requests.get(url, headers=headers)
 
     print("Busca status:", response.status_code)
-    print("Busca resposta:", response.text)
 
     if response.status_code != 200:
-        print("Erro ao buscar produto")
+        print("Erro ao buscar produto:", response.text)
         return None
 
     data = response.json()
@@ -70,6 +71,7 @@ def buscar_produto(query="notebook"):
         return None
 
     return data["results"][0]
+
 
 # ====== ENVIAR PARA TELEGRAM ======
 def enviar_produto():
@@ -82,7 +84,6 @@ def enviar_produto():
     preco = produto["price"]
     link = produto["permalink"]
 
-    # Gera link afiliado
     link_afiliado = f"{link}?matt_tool={AFILIADO}"
 
     mensagem = f"""
@@ -97,6 +98,7 @@ def enviar_produto():
     bot.send_message(chat_id=CANAL_ID, text=mensagem)
 
     print("Produto enviado com sucesso!")
+
 
 # ====== EXECUTAR ======
 if __name__ == "__main__":
