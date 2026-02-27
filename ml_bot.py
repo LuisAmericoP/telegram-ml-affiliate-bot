@@ -8,7 +8,7 @@ CANAL_ID = os.getenv("CANAL_ID")
 AFILIADO = os.getenv("AFILIADO")
 ML_APP_ID = os.getenv("ML_APP_ID")
 ML_CLIENT_SECRET = os.getenv("ML_CLIENT_SECRET")
-REDIRECT_URI = os.getenv("URL_DO_PAINEL")
+URL_DO_PAINEL = os.getenv("URL_DO_PAINEL")
 CODIGO_TG = os.getenv("CODIGO_TG")
 
 bot = Bot(token=TOKEN)
