@@ -9,7 +9,7 @@ AFILIADO = os.getenv("AFILIADO")
 ML_APP_ID = os.getenv("ML_APP_ID")
 ML_CLIENT_SECRET = os.getenv("ML_CLIENT_SECRET")
 REDIRECT_URI = os.getenv("URL_DO_PAINEL")
-TG_CODE = os.getenv("CODIGO_TG")
+CODIGO_TG = os.getenv("CODIGO_TG")
 
 bot = Bot(token=TOKEN)
 
